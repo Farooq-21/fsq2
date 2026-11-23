@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-dark">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">
+                <i class="bi bi-mortarboard-fill"></i> Student Management System
+            </span>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container my-5">
+        
+        <!-- Dashboard Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="dashboard-card">
+                    <div class="card-body text-center">
+                        <h2 class="dashboard-title">Total Registered Students</h2>
+                        <h1 class="dashboard-count" id="studentCount">0</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success/Error Message Area -->
+        <div id="messageArea"></div>
+
+        <!-- Student Registration Form -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="form-card">
+                    <div class="card-body">
+                        <h3 class="form-title mb-4">Student Registration Form</h3>
+                        
+                        <form id="studentForm">
+                            <div class="row">
+                                <!-- Full Name -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="fullName" class="form-label">Full Name *</label>
+                                    <input type="text" class="form-control" id="fullName" placeholder="Enter full name" required>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">Email Address *</label>
+                                    <input type="email" class="form-control" id="email" placeholder="Enter email" required>
+                                </div>
+
+                                <!-- Phone Number -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="phone" class="form-label">Phone Number *</label>
+                                    <input type="tel" class="form-control" id="phone" placeholder="03XX-XXXXXXX" required>
+                                </div>
+
+                                <!-- Department -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="department" class="form-label">Department *</label>
+                                    <select class="form-control" id="department" required>
+                                        <option value="">Select Department</option>
+                                        <option value="Computer Science">Computer Science</option>
+                                        <option value="Software Engineering">Software Engineering</option>
+                                        <option value="Information Technology">Information Technology</option>
+                                        <option value="Data Science">Data Science</option>
+                                        <option value="Cyber Security">Cyber Security</option>
+                                    </select>
+                                </div>
+
+                                <!-- Semester -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="semester" class="form-label">Semester *</label>
+                                    <select class="form-control" id="semester" required>
+                                        <option value="">Select Semester</option>
+                                        <option value="1">1st Semester</option>
+                                        <option value="2">2nd Semester</option>
+                                        <option value="3">3rd Semester</option>
+                                        <option value="4">4th Semester</option>
+                                        <option value="5">5th Semester</option>
+                                        <option value="6">6th Semester</option>
+                                        <option value="7">7th Semester</option>
+                                        <option value="8">8th Semester</option>
+                                    </select>
+                                </div>
+
+                                <!-- Gender -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="gender" class="form-label">Gender *</label>
+                                    <select class="form-control" id="gender" required>
+                                        <option value="">Select Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-primary btn-submit">
+                                    Register Student
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Display Students Section -->
+        <div class="row">
+            <div class="col-12">
+                <h3 class="section-title mb-4">Registered Students</h3>
+                <div id="studentsContainer" class="row">
+                    <!-- Students will be displayed here dynamically -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="script.js"></script>
+
+</body>
+</html>
