@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "id": "STD1795439718382115",
+    "fullName": "Muhammad Farooq",
+    "email": "ffarooq.cs@gmail.com",
+    "phone": "03318191265",
+    "department": "Software Engineering",
+    "semester": "2",
+    "gender": "Male",
+    "registeredAt": "11/23/2026, 6:15:18 PM"
+  }
+]
