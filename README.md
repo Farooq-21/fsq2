@@ -32,8 +32,11 @@ A complete full-stack web application for managing student records. Built with H
 ### Backend
 - Node.js
 - Express.js
-- File System (fs)
-- CORS
+- PostgreSQL Database
+
+### Database
+- PostgreSQL 15+ (relational database)
+- pg (Node.js PostgreSQL client)
 
 ## 📁 Project Structure
 
@@ -57,16 +60,39 @@ student-management-system/
 
 ### Prerequisites
 
-Make sure you have Node.js installed on your computer.
-You can download it from: https://nodejs.org/
+1. **Node.js** - Download from: https://nodejs.org/
+2. **PostgreSQL** - Download from: https://www.postgresql.org/download/
 
-### Step 1: Open Project in VS Code
+### Step 1: Install PostgreSQL
+
+1. Download and install PostgreSQL
+2. Set a password for the `postgres` user (remember this!)
+3. Create a database named `student_management`
+
+**Detailed instructions:** See `POSTGRESQL_SETUP.md`
+
+### Step 2: Open Project in VS Code
 
 1. Open VS Code
 2. Click on **File** → **Open Folder**
 3. Select the `labquiz2` folder
 
-### Step 2: Install Backend Dependencies
+### Step 3: Configure Database Connection
+
+1. Open `backend/server.js`
+2. Find the database configuration section:
+```javascript
+const pool = new Pool({
+    user: 'postgres',
+    host: 'localhost',
+    database: 'student_management',
+    password: 'your_password',  // UPDATE THIS
+    port: 5432,
+});
+```
+3. Replace `'your_password'` with your PostgreSQL password
+
+### Step 4: Install Backend Dependencies
 
 1. Open VS Code terminal: **Terminal** → **New Terminal**
 2. Navigate to backend folder:
@@ -78,7 +104,7 @@ You can download it from: https://nodejs.org/
    npm install
    ```
 
-### Step 3: Start the Backend Server
+### Step 5: Start the Backend Server
 
 While in the backend folder, run:
 ```
@@ -87,13 +113,16 @@ npm start
 
 You should see:
 ```
+✅ Database table initialized successfully
 ✅ Server is running on http://localhost:3000
-📁 Students data will be stored in: ...
+🐘 Connected to PostgreSQL database
 ```
 
-**Important:** Keep this terminal running. Don't close it.
+**Important:** The server automatically creates the `students` table on first run!
 
-### Step 4: Open the Frontend
+**Keep this terminal running. Don't close it.**
+
+### Step 6: Open the Frontend
 
 1. Open a new terminal in VS Code
 2. Navigate to frontend folder:
@@ -104,6 +133,24 @@ You should see:
    - **Option 1:** Right-click on `index.html` and select "Open with Live Server" (if you have Live Server extension)
    - **Option 2:** Double-click on `index.html` file to open in your default browser
    - **Option 3:** Drag `index.html` into your browser
+
+## 📝 Database Schema
+
+The application uses a PostgreSQL database with the following table structure:
+
+### `students` Table
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| id | SERIAL | PRIMARY KEY | Auto-incrementing ID |
+| student_id | VARCHAR(50) | UNIQUE, NOT NULL | Student identifier (STD...) |
+| full_name | VARCHAR(100) | NOT NULL | Student's full name |
+| email | VARCHAR(100) | UNIQUE, NOT NULL | Email address |
+| phone | VARCHAR(20) | NOT NULL | Phone number |
+| department | VARCHAR(100) | NOT NULL | Department name |
+| semester | VARCHAR(10) | NOT NULL | Semester |
+| gender | VARCHAR(20) | NOT NULL | Gender |
+| registered_at | TIMESTAMP | DEFAULT NOW() | Registration timestamp |
 
 ## 📝 How to Use the Application
 

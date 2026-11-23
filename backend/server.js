@@ -1,57 +1,53 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
+const { Pool } = require('pg');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-const studentsFilePath = path.join(__dirname, 'students.json');
+const pool = new Pool({
+    user: 'postgres',
+    host: 'localhost',
+    database: 'student_management',
+    password: 'your_password',
+    port: 5432,
+});
 
-const readStudentsFromFile = () => {
+const initializeDatabase = async () => {
     try {
-        if (!fs.existsSync(studentsFilePath)) {
-            fs.writeFileSync(studentsFilePath, JSON.stringify([], null, 2));
-            return [];
-        }
-        
-        const fileData = fs.readFileSync(studentsFilePath, 'utf-8');
-        const students = JSON.parse(fileData);
-        
-        return students;
-        
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS students (
+                id SERIAL PRIMARY KEY,
+                student_id VARCHAR(50) UNIQUE NOT NULL,
+                full_name VARCHAR(100) NOT NULL,
+                email VARCHAR(100) UNIQUE NOT NULL,
+                phone VARCHAR(20) NOT NULL,
+                department VARCHAR(100) NOT NULL,
+                semester VARCHAR(10) NOT NULL,
+                gender VARCHAR(20) NOT NULL,
+                registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        console.log('✅ Database table initialized successfully');
     } catch (error) {
-        console.error('Error reading students file:', error);
-        return [];
+        console.error('❌ Error initializing database:', error);
     }
 };
 
-const writeStudentsToFile = (students) => {
-    try {
-        const jsonData = JSON.stringify(students, null, 2);
-        fs.writeFileSync(studentsFilePath, jsonData, 'utf-8');
-        
-        return true;
-        
-    } catch (error) {
-        console.error('Error writing to students file:', error);
-        return false;
-    }
-};
+initializeDatabase();
 
 const generateStudentId = () => {
     const timestamp = Date.now();
     const randomNum = Math.floor(Math.random() * 1000);
-    const studentId = `STD${timestamp}${randomNum}`;
-    
-    return studentId;
+    return `STD${timestamp}${randomNum}`;
 };
 
 app.get('/', (req, res) => {
     res.json({
         message: 'Welcome to Student Management System API',
+        database: 'PostgreSQL',
         endpoints: {
             getStudents: 'GET /students',
             addStudent: 'POST /students',
@@ -60,11 +56,12 @@ app.get('/', (req, res) => {
     });
 });
 
-app.get('/students', (req, res) => {
+app.get('/students', async (req, res) => {
     try {
-        const students = readStudentsFromFile();
-        res.status(200).json(students);
-        
+        const result = await pool.query(
+            'SELECT student_id as id, full_name as "fullName", email, phone, department, semester, gender, registered_at as "registeredAt" FROM students ORDER BY id DESC'
+        );
+        res.status(200).json(result.rows);
     } catch (error) {
         res.status(500).json({
             message: 'Error retrieving students',
@@ -73,7 +70,7 @@ app.get('/students', (req, res) => {
     }
 });
 
-app.post('/students', (req, res) => {
+app.post('/students', async (req, res) => {
     try {
         const { fullName, email, phone, department, semester, gender } = req.body;
         
@@ -83,39 +80,23 @@ app.post('/students', (req, res) => {
             });
         }
         
-        const students = readStudentsFromFile();
-        
-        const emailExists = students.find(student => student.email === email);
-        if (emailExists) {
+        const emailCheck = await pool.query('SELECT * FROM students WHERE email = $1', [email]);
+        if (emailCheck.rows.length > 0) {
             return res.status(400).json({
                 message: 'Student with this email already exists'
             });
         }
         
-        const newStudent = {
-            id: generateStudentId(),
-            fullName: fullName,
-            email: email,
-            phone: phone,
-            department: department,
-            semester: semester,
-            gender: gender,
-            registeredAt: new Date().toLocaleString()
-        };
+        const studentId = generateStudentId();
         
-        students.push(newStudent);
-        
-        const writeSuccess = writeStudentsToFile(students);
-        
-        if (!writeSuccess) {
-            return res.status(500).json({
-                message: 'Error saving student data'
-            });
-        }
+        const result = await pool.query(
+            'INSERT INTO students (student_id, full_name, email, phone, department, semester, gender) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING student_id as id, full_name as "fullName", email, phone, department, semester, gender, registered_at as "registeredAt"',
+            [studentId, fullName, email, phone, department, semester, gender]
+        );
         
         res.status(201).json({
             message: 'Student registered successfully',
-            student: newStudent
+            student: result.rows[0]
         });
         
     } catch (error) {
@@ -126,32 +107,24 @@ app.post('/students', (req, res) => {
     }
 });
 
-app.delete('/students/:id', (req, res) => {
+app.delete('/students/:id', async (req, res) => {
     try {
         const studentId = req.params.id;
-        let students = readStudentsFromFile();
         
-        const studentIndex = students.findIndex(student => student.id === studentId);
+        const result = await pool.query(
+            'DELETE FROM students WHERE student_id = $1 RETURNING student_id as id, full_name as "fullName", email, phone, department, semester, gender, registered_at as "registeredAt"',
+            [studentId]
+        );
         
-        if (studentIndex === -1) {
+        if (result.rows.length === 0) {
             return res.status(404).json({
                 message: 'Student not found'
             });
         }
         
-        const deletedStudent = students.splice(studentIndex, 1);
-        
-        const writeSuccess = writeStudentsToFile(students);
-        
-        if (!writeSuccess) {
-            return res.status(500).json({
-                message: 'Error deleting student'
-            });
-        }
-        
         res.status(200).json({
             message: 'Student deleted successfully',
-            student: deletedStudent[0]
+            student: result.rows[0]
         });
         
     } catch (error) {
@@ -166,5 +139,5 @@ const PORT = 3000;
 
 app.listen(PORT, () => {
     console.log(`✅ Server is running on http://localhost:${PORT}`);
-    console.log(`📁 Students data will be stored in: ${studentsFilePath}`);
+    console.log(`🐘 Connected to PostgreSQL database`);
 });

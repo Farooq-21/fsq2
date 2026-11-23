@@ -6,11 +6,17 @@
   "scripts": {
     "start": "node server.js"
   },
-  "keywords": ["express", "rest-api", "student-management"],
+  "keywords": [
+    "express",
+    "rest-api",
+    "student-management",
+    "postgresql"
+  ],
   "author": "BSCS Student",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2",
-    "cors": "^2.8.5"
+    "pg": "^8.23.1"
   }
 }
